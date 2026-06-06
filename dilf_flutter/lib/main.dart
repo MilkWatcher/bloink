@@ -28,6 +28,10 @@ class HomeRouter extends StatefulWidget {
 class _HomeRouterState extends State<HomeRouter> {
   String? username;
   List<String> goals = ['', '', ''];
+  bool randomizeAlarm = false;
+  bool requireMorningPrompt = false;
+  int fastDismissCounter = 0;
+  bool escalationActive = false;
 
   @override
   Widget build(BuildContext context) {
@@ -44,9 +48,18 @@ class _HomeRouterState extends State<HomeRouter> {
     return MainMenu(
       username: username!,
       goals: goals,
+      randomizeAlarm: randomizeAlarm,
+      requireMorningPrompt: requireMorningPrompt,
+      escalationActive: escalationActive,
       onUpdateGoals: (updated) {
         setState(() {
           goals = updated;
+        });
+      },
+      onUpdateSettings: (rand, promptReq) {
+        setState(() {
+          randomizeAlarm = rand;
+          requireMorningPrompt = promptReq;
         });
       },
     );
@@ -111,8 +124,12 @@ class MainMenu extends StatelessWidget {
   final String username;
   final List<String> goals;
   final void Function(List<String>) onUpdateGoals;
+  final void Function(bool, bool) onUpdateSettings;
+  final bool randomizeAlarm;
+  final bool requireMorningPrompt;
+  final bool escalationActive;
 
-  MainMenu({required this.username, required this.goals, required this.onUpdateGoals});
+  MainMenu({required this.username, required this.goals, required this.onUpdateGoals, required this.onUpdateSettings, required this.randomizeAlarm, required this.requireMorningPrompt, required this.escalationActive});
 
   @override
   Widget build(BuildContext context) {
@@ -137,7 +154,12 @@ class MainMenu extends StatelessWidget {
               children: [
                 ElevatedButton(
                   onPressed: () {
-                    Navigator.of(context).push(MaterialPageRoute(builder: (_) => AlarmScreen(goals: goals)));
+                    Navigator.of(context).push(MaterialPageRoute(builder: (_) => AlarmScreen(goals: goals, randomizeOrder: randomizeAlarm, escalationMode: escalationActive, requireMorningPrompt: requireMorningPrompt))).then((result) {
+                      if (result != null && result is Map && result['fastDismiss'] == true) {
+                        // Notifying user via snackbar; higher-level state could persist this
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Fast dismissal detected')));
+                      }
+                    });
                   },
                   child: Text('Simulate Alarm'),
                 ),
@@ -150,7 +172,21 @@ class MainMenu extends StatelessWidget {
                   child: Text('Wind-down settings'),
                 )
               ],
-            )
+            ),
+            SizedBox(height: 18),
+            Row(
+              children: [
+                Expanded(child: Text('Randomize bubble order')),
+                Switch(value: randomizeAlarm, onChanged: (v) => onUpdateSettings(v, requireMorningPrompt)),
+              ],
+            ),
+            Row(
+              children: [
+                Expanded(child: Text('Require morning word prompt')),
+                Switch(value: requireMorningPrompt, onChanged: (v) => onUpdateSettings(randomizeAlarm, v)),
+              ],
+            ),
+            if (escalationActive) Padding(padding: EdgeInsets.only(top:12), child: Text('Escalation mode active', style: TextStyle(color: Colors.orangeAccent))),
           ],
         ),
       ),
@@ -190,7 +226,10 @@ class GoalRow extends StatelessWidget {
 
 class AlarmScreen extends StatefulWidget {
   final List<String> goals;
-  AlarmScreen({required this.goals});
+  final bool randomizeOrder;
+  final bool escalationMode;
+  final bool requireMorningPrompt;
+  AlarmScreen({required this.goals, this.randomizeOrder = false, this.escalationMode = false, this.requireMorningPrompt = false});
 
   @override
   _AlarmScreenState createState() => _AlarmScreenState();
@@ -200,28 +239,49 @@ class _AlarmScreenState extends State<AlarmScreen> {
   late List<double> progress;
   late List<bool> completed;
   List<Timer?> timers = [null, null, null];
+  late List<int> order;
+  bool sequentialRequired = false;
+  int nextRequiredIndex = 0;
+  late int startTimestamp;
 
   @override
   void initState() {
     super.initState();
     progress = [0.0, 0.0, 0.0];
     completed = [false, false, false];
+    order = [0,1,2];
+    if (widget.randomizeOrder && !widget.escalationMode) {
+      order.shuffle();
+    }
+    sequentialRequired = widget.escalationMode;
+    nextRequiredIndex = 0;
+    startTimestamp = DateTime.now().millisecondsSinceEpoch;
   }
 
   void startHold(int i) {
-    if (completed[i]) return;
-    timers[i]?.cancel();
+    // map visible index to actual goal index
+    final actual = order[i];
+    if (completed[actual]) return;
+    if (sequentialRequired && actual != order[nextRequiredIndex]) {
+      // provide UI feedback that this bubble is locked
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please dismiss bubbles in order')));
+      });
+      return;
+    }
+    timers[actual]?.cancel();
     const totalMs = 3000;
     const tickMs = 50;
     int elapsed = 0;
-    timers[i] = Timer.periodic(Duration(milliseconds: tickMs), (t) {
+    timers[actual] = Timer.periodic(Duration(milliseconds: tickMs), (t) {
       setState(() {
         elapsed += tickMs;
-        progress[i] = (elapsed / totalMs).clamp(0.0, 1.0);
-        if (progress[i] >= 1.0) {
-          completed[i] = true;
-          timers[i]?.cancel();
-          timers[i] = null;
+        progress[actual] = (elapsed / totalMs).clamp(0.0, 1.0);
+        if (progress[actual] >= 1.0) {
+          completed[actual] = true;
+          timers[actual]?.cancel();
+          timers[actual] = null;
+          if (sequentialRequired) nextRequiredIndex++;
           checkAllCompleted();
         }
       });
@@ -229,20 +289,36 @@ class _AlarmScreenState extends State<AlarmScreen> {
   }
 
   void cancelHold(int i) {
-    timers[i]?.cancel();
-    timers[i] = null;
+    final actual = order[i];
+    timers[actual]?.cancel();
+    timers[actual] = null;
     setState(() {
-      progress[i] = 0.0;
+      progress[actual] = 0.0;
     });
   }
 
   void checkAllCompleted() {
     if (completed.every((c) => c)) {
-      showDialog(context: context, builder: (_) => AlertDialog(
-        title: Text('Alarm dismissed'),
-        content: Text('Nice — you read your goals. Have a good morning.'),
-        actions: [TextButton(onPressed: () => Navigator.of(context).pop(), child: Text('Close'))],
-      ));
+      final elapsed = DateTime.now().millisecondsSinceEpoch - startTimestamp;
+      final totalHoldMs = 3000 * 3;
+      final fastDismiss = elapsed < (totalHoldMs * 0.6);
+      if (widget.requireMorningPrompt) {
+        // show prompt input before finishing
+        showDialog<String>(context: context, barrierDismissible: false, builder: (_) {
+          final controller = TextEditingController();
+          return AlertDialog(
+            title: Text('Morning word'),
+            content: TextField(controller: controller, decoration: InputDecoration(hintText: 'One word to describe how you feel')),
+            actions: [TextButton(onPressed: (){
+              if (controller.text.trim().isNotEmpty) Navigator.of(context).pop(controller.text.trim());
+            }, child: Text('Submit'))],
+          );
+        }).then((word) {
+          Navigator.of(context).pop({'elapsed': elapsed, 'fastDismiss': fastDismiss, 'word': word});
+        });
+      } else {
+        Navigator.of(context).pop({'elapsed': elapsed, 'fastDismiss': fastDismiss});
+      }
     }
   }
 
@@ -266,13 +342,18 @@ class _AlarmScreenState extends State<AlarmScreen> {
             Expanded(
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: List.generate(3, (i) => AlarmBubble(
-                  label: widget.goals[i].isEmpty ? 'Goal ${i+1}' : widget.goals[i],
-                  progress: progress[i],
-                  completed: completed[i],
-                  onHoldStart: () => startHold(i),
-                  onHoldEnd: () => cancelHold(i),
-                )),
+                children: List.generate(3, (i) {
+                  final actual = order[i];
+                  final locked = sequentialRequired && actual != order[nextRequiredIndex];
+                  return AlarmBubble(
+                    label: widget.goals[actual].isEmpty ? 'Goal ${actual+1}' : widget.goals[actual],
+                    progress: progress[actual],
+                    completed: completed[actual],
+                    locked: locked,
+                    onHoldStart: () => startHold(i),
+                    onHoldEnd: () => cancelHold(i),
+                  );
+                }),
               ),
             ),
             SizedBox(height: 24),
@@ -288,10 +369,11 @@ class AlarmBubble extends StatelessWidget {
   final String label;
   final double progress;
   final bool completed;
+  final bool locked;
   final VoidCallback onHoldStart;
   final VoidCallback onHoldEnd;
 
-  AlarmBubble({required this.label, required this.progress, required this.completed, required this.onHoldStart, required this.onHoldEnd});
+  AlarmBubble({required this.label, required this.progress, required this.completed, required this.onHoldStart, required this.onHoldEnd, this.locked = false});
 
   @override
   Widget build(BuildContext context) {
@@ -310,7 +392,9 @@ class AlarmBubble extends StatelessWidget {
                 height: 120,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  gradient: completed ? LinearGradient(colors: [Colors.green, Colors.lightGreenAccent]) : LinearGradient(colors: [Colors.blueGrey.shade800, Colors.blueGrey.shade700]),
+                  gradient: completed
+                      ? LinearGradient(colors: [Colors.green, Colors.lightGreenAccent])
+                      : (locked ? LinearGradient(colors: [Colors.grey.shade800, Colors.grey.shade700]) : LinearGradient(colors: [Colors.blueGrey.shade800, Colors.blueGrey.shade700])),
                 ),
               ),
               SizedBox(
@@ -324,6 +408,11 @@ class AlarmBubble extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Icon(completed ? Icons.check : Icons.play_arrow, size: 32),
+              ),
+              if (locked) Positioned(
+                right: 6,
+                top: 6,
+                child: Icon(Icons.lock, size: 20, color: Colors.white70),
               )
             ],
           ),
