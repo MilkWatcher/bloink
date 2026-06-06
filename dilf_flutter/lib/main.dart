@@ -74,9 +74,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               SizedBox(height: 20),
-              Text('Welcome to DILF', style: Theme.of(context).textTheme.headline4),
+              Text('Welcome to DILF', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
               SizedBox(height: 12),
-              Text('Doomscroll Intervention & Life Focus', style: Theme.of(context).textTheme.subtitle1),
+              Text('Doomscroll Intervention & Life Focus', style: TextStyle(fontSize: 16, color: Colors.grey)),
               SizedBox(height: 32),
               Text('Pick a name to get started:'),
               SizedBox(height: 8),
@@ -123,7 +123,7 @@ class MainMenu extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Good evening, $username', style: Theme.of(context).textTheme.headline5),
+            Text('Good evening, $username', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600)),
             SizedBox(height: 16),
             Text('Tonight: set three goals for tomorrow'),
             SizedBox(height: 12),
@@ -261,7 +261,7 @@ class _AlarmScreenState extends State<AlarmScreen> {
         child: Column(
           children: [
             SizedBox(height: 12),
-            Text('Hold each bubble for 3 seconds to dismiss', style: Theme.of(context).textTheme.subtitle1),
+            Text('Hold each bubble for 3 seconds to dismiss', style: TextStyle(fontSize: 16)),
             SizedBox(height: 24),
             Expanded(
               child: Row(
