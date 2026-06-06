@@ -1,0 +1,175 @@
+DILF  — Product Vision Document
+
+
+DILF
+Doomscroll Intervention & Life Focus
+Product Vision Document
+Version 1.0  ·  June 2026  ·  Confidential
+	
+
+________________
+
+
+1. Executive Summary
+DILF is an app designed to fix your terrible morning routine and kill your phone addiction. By forcing you to set intentional goals, preventing users from doomscrolling, and throwing an alarm at you that actually requires a functioning brain to turn off, DILF bridges the gap between who you pretend you'll be at midnight and who you actually are at 7:00 AM.
+Most productivity apps try to shove more optimization hacks into your life. DILF does the opposite. It gets out of the way, cuts off mindless scrolling before it starts, and makes sure the first thing you do every day is grounded in reality, not a feed.
+
+
+The Core Problem
+The average person spends 3–4 hours per day on their phone, much of it on short-form content. Mornings are the most vulnerable window, the brain is still sluggish, tired, and the path of least resistance is to reach for the phone and start doomscrolling. This sets a reactive, low-energy tone for the entire day.
+	
+
+2. App Name & Identity
+Name: DILF
+Acronym: Doomscroll Intervention & Life Focus
+The name DILF was selected for several strategic reasons:
+* Instant Virality: It is highly memorable, and guarantees immediate organic word-of-mouth marketing. I mean, ifykyk.
+* The "Lock Screen" Effect: Users will actively want to clear their morning notifications to avoid having the acronym displayed on their screen in public.
+* Perfect Target Demographics: It resonates perfectly with a tech-fatigued, irony-poisoned, brainrotted audience.
+* It's different and quirky: In a crowded market of boring apps named after mornings and light, this immediately cuts through the noise.
+
+
+
+
+3. Vision & Mission
+Vision
+	A world where people start every day with intention, not inertia.
+	Mission
+	To reduce harmful phone habits by making goal-setting and mindful mornings the path of least resistance.
+	
+
+4. Target Audience
+DILF targets people who are aware of their phone habits and motivated to change but lack a structured system to do so. Primary personas include:
+
+
+The Burnt-Out Professional
+25–40, high-pressure job, phone used as an escape.
+
+
+ “I want more focused mornings.”
+	The Ambitious Student
+18–24, goals-oriented but easily distracted by social media. 
+
+
+“I want accountability.”
+	The Habit Builder
+Any age, actively working on self-improvement.
+
+
+
+
+“I want a system that reinforces daily discipline.”
+	
+
+5. Core Features
+5.1 Onboarding
+First-time users are walked through a focused setup flow:
+* Username and avatar selection (placeholder geometric shapes for v1)
+* An intent checklist: less screen time, better mornings, achieving daily goals
+* A brief 'why' prompt to personalise the experience and increase retention
+
+
+5.2 Nightly Goal Setting
+Each evening, the user is prompted to write three goals for tomorrow. These become the centrepiece of the morning alarm experience. Skipping is always allowed, with a graceful fallback to default mindfulness prompts.
+
+
+Design Note
+Goals should be written in the user's own words — raw, honest, and personal. Auto-suggestions should be avoided at this stage to preserve authenticity.
+	
+
+5.3 The DILF Alarm
+The alarm is the heart of the app and its most distinctive feature. To dismiss it, the user must:
+* Hold three bubble buttons for 3 seconds each
+* Each bubble displays one of their three personal goals
+* The act of holding and reading forces the brain into conscious wakefulness
+
+
+Planned enhancements:
+* Random vs. fixed bubble order to prevent muscle memory dismissal
+* Escalation mode — after repeated fast dismissals, bubbles require sequential tapping
+* Optional morning prompt — one word typed to describe how you feel
+
+
+5.4 App & Content Blocking
+Users select which apps to restrict. For v1, blocking targets short-form content only — Shorts on YouTube, Reels on Instagram, the For You feed on TikTok, and video feeds on X/Twitter. This surgical approach avoids alienating users while targeting the highest-addiction surface areas.
+
+
+* Allowance mode: set a daily time budget (e.g. 10 min) rather than a hard block
+* Wind-down schedule: blocking activates automatically 30–60 min before bedtime
+
+
+6. Feature Roadmap
+
+
+Phase
+	Timeline
+	Features
+	v1 — MVP
+	Month 1–2
+	Onboarding, nightly goals, DILF alarm (3 bubbles), basic app blocking
+	v1.1
+	Month 3
+	Goal history, streak tracker, wind-down scheduling, allowance mode
+	v1.2
+	Month 4–5
+	Weekly summary screen, alarm escalation mode, morning word prompt
+	v2.0
+	Month 6+
+	Widget support, shared accountability (friends), habit library, Apple Health integration
+	
+
+7. Design Principles
+🌙
+	Calm by default
+	Dark mode first. The app should never feel jarring at 6am or 11pm.
+	🎯
+	Friction as a feature
+	Deliberate effort to dismiss the alarm is the point — not a bug.
+	✍️
+	Your words, not ours
+	Goals must come from the user. No AI-generated suggestions in core flows.
+	📈
+	Progress over perfection
+	Streaks and history celebrate consistency, not flawlessness.
+	🚪
+	Always an exit
+	Skipping and snoozing are always available. Guilt-free UX is essential,.
+	
+
+8. Success Metrics
+DILF will measure success across three dimensions:
+
+
+Engagement
+* 7-day alarm streak rate
+* % of nights goals are set
+* DAU / MAU ratio
+	Behaviour Change
+* Avg. daily blocked screen time
+* Reduction in short-form usage
+* User-reported morning quality
+	Business
+* D30 retention
+* App Store rating
+* Word-of-mouth installs
+	
+
+9. Risks & Mitigations
+Risk
+	Mitigation
+	User habituates to alarm mechanic
+	Introduce escalation mode and randomised bubble order over time
+	App blocking requires intrusive permissions
+	Use Screen Time API (iOS) and Digital Wellbeing API (Android) — no root required
+	Low nightly goal completion rate
+	Wind-down notification at set bedtime; keep entry friction minimal (3 short fields)
+	Users feel guilt when they skip
+	Explicitly design skip flows to be neutral and warm — never punish or shame
+	
+
+10. Closing Statement
+DILF is not another productivity app. It is an intervention — a small, daily ritual that gives people back the first moment of their day. The alarm mechanic alone is a defensible differentiator in a crowded market. Built with care, DILF has the potential to become the app people credit when they say 'I finally started getting my mornings right.'
+
+
+This document is a living artefact and should be updated as the product evolves through user research, prototype testing, and launch.
+Confidential — Internal Use OnlyPage
