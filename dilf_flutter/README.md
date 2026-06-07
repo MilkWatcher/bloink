@@ -14,3 +14,4 @@ flutter run
 
 Notes
 - This is a prototype for UX validation. Native OS app-blocking and advanced integrations are not implemented.
+- iOS DeviceActivity / FamilyControls integration is planned; see `IOS_DEVICE_ACTIVITY_PLAN.md` for entitlement and extension scaffolding.
