@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 void main() {
   runApp(DilfApp());
@@ -10,10 +12,24 @@ class DilfApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'DILF Prototype',
       theme: ThemeData.dark().copyWith(
-        colorScheme: ColorScheme.dark(),
-        scaffoldBackgroundColor: Color(0xFF0B0B0D),
+        scaffoldBackgroundColor: Colors.transparent,
+        textTheme: GoogleFonts.interTextTheme(ThemeData.dark().textTheme).apply(
+          bodyColor: Colors.white,
+          displayColor: Colors.white,
+        ),
+        colorScheme: ColorScheme.dark(
+          primary: Color(0xFF9F8EFF),
+          secondary: Color(0xFF90E1C9),
+        ),
+        appBarTheme: AppBarTheme(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          foregroundColor: Colors.white,
+          titleTextStyle: TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: Colors.white),
+        ),
       ),
       home: HomeRouter(),
     );
@@ -64,6 +80,95 @@ class _HomeRouterState extends State<HomeRouter> {
       },
     );
   }
+  }
+
+class GlassPanel extends StatelessWidget {
+  final Widget child;
+  final EdgeInsetsGeometry padding;
+  final BorderRadius borderRadius;
+  final BoxBorder? border;
+
+  const GlassPanel({required this.child, this.padding = const EdgeInsets.all(20), this.borderRadius = const BorderRadius.all(Radius.circular(30)), this.border});
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipRRect(
+      borderRadius: borderRadius,
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+        child: Container(
+          padding: padding,
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.10),
+            borderRadius: borderRadius,
+            border: border ?? Border.all(color: Colors.white.withOpacity(0.14), width: 1.2),
+            boxShadow: [
+              BoxShadow(color: Colors.black.withOpacity(0.15), blurRadius: 24, offset: Offset(0, 10)),
+            ],
+          ),
+          child: child,
+        ),
+      ),
+    );
+  }
+}
+
+class BackgroundGradient extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFF0A1323), Color(0xFF070B13)],
+        ),
+      ),
+      child: Stack(
+        children: [
+          Positioned(
+            top: -90,
+            left: -60,
+            child: Container(
+              width: 260,
+              height: 260,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: RadialGradient(
+                  colors: [Color(0xFF8EAAFF).withOpacity(0.22), Colors.transparent],
+                ),
+              ),
+            ),
+          ),
+          Positioned(
+            bottom: -100,
+            right: -40,
+            child: Container(
+              width: 320,
+              height: 320,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: RadialGradient(
+                  colors: [Color(0xFF8EEDC2).withOpacity(0.16), Colors.transparent],
+                ),
+              ),
+            ),
+          ),
+          Positioned.fill(
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [Colors.transparent, Colors.black.withOpacity(0.25)],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 class OnboardingScreen extends StatefulWidget {
@@ -80,41 +185,57 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(height: 20),
-              Text('Welcome to DILF', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
-              SizedBox(height: 12),
-              Text('Doomscroll Intervention & Life Focus', style: TextStyle(fontSize: 16, color: Colors.grey)),
-              SizedBox(height: 32),
-              Text('Pick a name to get started:'),
-              SizedBox(height: 8),
-              TextField(
-                controller: _controller,
-                decoration: InputDecoration(
-                  filled: true,
-                  fillColor: Colors.grey[850],
-                  hintText: 'Your name',
+      extendBodyBehindAppBar: true,
+      body: Stack(
+        children: [
+          BackgroundGradient(),
+          SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: GlassPanel(
+                padding: const EdgeInsets.all(28.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(height: 10),
+                    Text('Welcome to DILF', style: TextStyle(fontSize: 32, fontWeight: FontWeight.w800)),
+                    SizedBox(height: 10),
+                    Text('Doomscroll Intervention & Life Focus', style: TextStyle(fontSize: 16, color: Colors.white70)),
+                    SizedBox(height: 30),
+                    Text('Pick a name to get started:', style: TextStyle(fontSize: 16, color: Colors.white70)),
+                    SizedBox(height: 12),
+                    GlassPanel(
+                      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 14),
+                      border: Border.all(color: Colors.white.withOpacity(0.08), width: 1.0),
+                      child: TextField(
+                        controller: _controller,
+                        style: TextStyle(color: Colors.white),
+                        decoration: InputDecoration(
+                          border: InputBorder.none,
+                          hintText: 'Your name',
+                          hintStyle: TextStyle(color: Colors.white38),
+                        ),
+                      ),
+                    ),
+                    Spacer(),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.white.withOpacity(0.14),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+                        padding: EdgeInsets.symmetric(vertical: 16),
+                      ),
+                      onPressed: () {
+                        final name = _controller.text.trim();
+                        if (name.isNotEmpty) widget.onComplete(name);
+                      },
+                      child: Text('Get started', style: TextStyle(color: Colors.white, fontSize: 16)),
+                    )
+                  ],
                 ),
               ),
-              Spacer(),
-              ElevatedButton(
-                onPressed: () {
-                  final name = _controller.text.trim();
-                  if (name.isNotEmpty) widget.onComplete(name);
-                },
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 14.0, horizontal: 24.0),
-                  child: Text('Get started'),
-                ),
-              )
-            ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }
@@ -134,61 +255,82 @@ class MainMenu extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(title: Text('DILF')),
-      body: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Good evening, $username', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600)),
-            SizedBox(height: 16),
-            Text('Tonight: set three goals for tomorrow'),
-            SizedBox(height: 12),
-            for (int i = 0; i < 3; i++) GoalRow(index: i, value: goals[i], onChanged: (v) {
-              final updated = List<String>.from(goals);
-              updated[i] = v;
-              onUpdateGoals(updated);
-            }),
-            Spacer(),
-            Row(
-              children: [
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.of(context).push(MaterialPageRoute(builder: (_) => AlarmScreen(goals: goals, randomizeOrder: randomizeAlarm, escalationMode: escalationActive, requireMorningPrompt: requireMorningPrompt))).then((result) {
-                      if (result != null && result is Map && result['fastDismiss'] == true) {
-                        // Notifying user via snackbar; higher-level state could persist this
-                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Fast dismissal detected')));
-                      }
-                    });
-                  },
-                  child: Text('Simulate Alarm'),
+      body: Stack(
+        children: [
+          BackgroundGradient(),
+          SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 18.0, vertical: 24.0),
+              child: GlassPanel(
+                padding: const EdgeInsets.all(24.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Good evening, $username', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w800, letterSpacing: 0.2)),
+                    SizedBox(height: 10),
+                    Text('Set three thoughtful goals for tomorrow.', style: TextStyle(color: Colors.white70, fontSize: 16, height: 1.45)),
+                    SizedBox(height: 20),
+                    for (int i = 0; i < 3; i++) GoalRow(index: i, value: goals[i], onChanged: (v) {
+                      final updated = List<String>.from(goals);
+                      updated[i] = v;
+                      onUpdateGoals(updated);
+                    }),
+                    Spacer(),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Color(0xFF9F8EFF),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+                              padding: EdgeInsets.symmetric(vertical: 16),
+                            ),
+                            onPressed: () {
+                              Navigator.of(context).push(MaterialPageRoute(builder: (_) => AlarmScreen(goals: goals, randomizeOrder: randomizeAlarm, escalationMode: escalationActive, requireMorningPrompt: requireMorningPrompt))).then((result) {
+                                if (result != null && result is Map && result['fastDismiss'] == true) {
+                                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Fast dismissal detected')));
+                                }
+                              });
+                            },
+                            child: Text('Simulate Alarm', style: TextStyle(color: Colors.black, fontWeight: FontWeight.w700)),
+                          ),
+                        ),
+                        SizedBox(width: 12),
+                        OutlinedButton(
+                          style: OutlinedButton.styleFrom(
+                            side: BorderSide(color: Colors.white24),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+                            padding: EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+                          ),
+                          onPressed: () {
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Feature coming soon')));
+                          },
+                          child: Text('Wind-down settings', style: TextStyle(color: Colors.white70, fontWeight: FontWeight.w600)),
+                        )
+                      ],
+                    ),
+                    SizedBox(height: 18),
+                    Row(
+                      children: [
+                        Expanded(child: Text('Randomize bubble order', style: TextStyle(color: Colors.white70))),
+                        Switch(value: randomizeAlarm, onChanged: (v) => onUpdateSettings(v, requireMorningPrompt), activeColor: Color(0xFF7BE8FF)),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        Expanded(child: Text('Require morning word prompt', style: TextStyle(color: Colors.white70))),
+                        Switch(value: requireMorningPrompt, onChanged: (v) => onUpdateSettings(randomizeAlarm, v), activeColor: Color(0xFF7BE8FF)),
+                      ],
+                    ),
+                    if (escalationActive) Padding(padding: EdgeInsets.only(top: 12), child: Text('Escalation mode active', style: TextStyle(color: Colors.orangeAccent))),
+                  ],
                 ),
-                SizedBox(width: 12),
-                OutlinedButton(
-                  onPressed: () {
-                    // placeholder for future features
-                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Feature coming soon')));
-                  },
-                  child: Text('Wind-down settings'),
-                )
-              ],
+              ),
             ),
-            SizedBox(height: 18),
-            Row(
-              children: [
-                Expanded(child: Text('Randomize bubble order')),
-                Switch(value: randomizeAlarm, onChanged: (v) => onUpdateSettings(v, requireMorningPrompt)),
-              ],
-            ),
-            Row(
-              children: [
-                Expanded(child: Text('Require morning word prompt')),
-                Switch(value: requireMorningPrompt, onChanged: (v) => onUpdateSettings(randomizeAlarm, v)),
-              ],
-            ),
-            if (escalationActive) Padding(padding: EdgeInsets.only(top:12), child: Text('Escalation mode active', style: TextStyle(color: Colors.orangeAccent))),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -204,21 +346,20 @@ class GoalRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final controller = TextEditingController(text: value);
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6.0),
-      child: Row(
-        children: [
-          Expanded(
-            child: TextField(
-              controller: controller,
-              onChanged: onChanged,
-              decoration: InputDecoration(
-                filled: true,
-                fillColor: Colors.grey[850],
-                hintText: 'Goal ${index + 1}',
-              ),
-            ),
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: GlassPanel(
+        padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 16.0),
+        borderRadius: BorderRadius.circular(24),
+        child: TextField(
+          controller: controller,
+          onChanged: onChanged,
+          style: TextStyle(color: Colors.white),
+          decoration: InputDecoration(
+            border: InputBorder.none,
+            hintText: 'Goal ${index + 1}',
+            hintStyle: TextStyle(color: Colors.white38),
           ),
-        ],
+        ),
       ),
     );
   }
@@ -331,41 +472,55 @@ class _AlarmScreenState extends State<AlarmScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(title: Text('DILF Alarm')),
-      body: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          children: [
-            SizedBox(height: 12),
-            Text('Hold each bubble for 3 seconds to dismiss', style: TextStyle(fontSize: 16)),
-            SizedBox(height: 24),
-            Expanded(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: List.generate(3, (i) {
-                  final actual = order[i];
-                  final locked = sequentialRequired && actual != order[nextRequiredIndex];
-                  return AlarmBubble(
-                    label: widget.goals[actual].isEmpty ? 'Goal ${actual+1}' : widget.goals[actual],
-                    progress: progress[actual],
-                    completed: completed[actual],
-                    locked: locked,
-                    onHoldStart: () => startHold(i),
-                    onHoldEnd: () => cancelHold(i),
-                  );
-                }),
+      body: Stack(
+        children: [
+          BackgroundGradient(),
+          SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: GlassPanel(
+                padding: const EdgeInsets.all(20.0),
+                child: Column(
+                  children: [
+                    SizedBox(height: 12),
+                    Text('Hold each pill for 3 seconds to dismiss', style: TextStyle(fontSize: 16, color: Colors.white70)),
+                    SizedBox(height: 20),
+                    Expanded(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: List.generate(3, (i) {
+                          final actual = order[i];
+                          final locked = sequentialRequired && actual != order[nextRequiredIndex];
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 8.0),
+                            child: AlarmBubble(
+                              label: widget.goals[actual].isEmpty ? 'Goal ${actual + 1}' : widget.goals[actual],
+                              progress: progress[actual],
+                              completed: completed[actual],
+                              locked: locked,
+                              onHoldStart: () => startHold(i),
+                              onHoldEnd: () => cancelHold(i),
+                            ),
+                          );
+                        }),
+                      ),
+                    ),
+                    SizedBox(height: 16),
+                    if (completed.every((c) => c)) Text('Dismissed — good job!', style: TextStyle(color: Colors.lightGreenAccent, fontWeight: FontWeight.w700)),
+                  ],
+                ),
               ),
             ),
-            SizedBox(height: 24),
-            if (completed.every((c) => c)) Text('Dismissed — good job!', style: TextStyle(color: Colors.greenAccent)),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 }
 
-class AlarmBubble extends StatelessWidget {
+class AlarmBubble extends StatefulWidget {
   final String label;
   final double progress;
   final bool completed;
@@ -376,52 +531,91 @@ class AlarmBubble extends StatelessWidget {
   AlarmBubble({required this.label, required this.progress, required this.completed, required this.onHoldStart, required this.onHoldEnd, this.locked = false});
 
   @override
+  _AlarmBubbleState createState() => _AlarmBubbleState();
+}
+
+class _AlarmBubbleState extends State<AlarmBubble> {
+  bool _pressed = false;
+
+  void _handleDown() {
+    setState(() => _pressed = true);
+    widget.onHoldStart();
+  }
+
+  void _handleUp() {
+    setState(() => _pressed = false);
+    widget.onHoldEnd();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final backgroundGradient = widget.completed
+        ? LinearGradient(colors: [Color(0xFF1A472B), Color(0xFF2F7A48)])
+        : (widget.locked
+            ? LinearGradient(colors: [Color(0xFF26292D), Color(0xFF1C1F22)])
+            : LinearGradient(colors: [Color(0xFF22232A), Color(0xFF181A1F)]));
+
     return GestureDetector(
-      onTapDown: (_) => onHoldStart(),
-      onTapUp: (_) => onHoldEnd(),
-      onTapCancel: () => onHoldEnd(),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Stack(
-            alignment: Alignment.center,
-            children: [
-              Container(
-                width: 120,
-                height: 120,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: completed
-                      ? LinearGradient(colors: [Colors.green, Colors.lightGreenAccent])
-                      : (locked ? LinearGradient(colors: [Colors.grey.shade800, Colors.grey.shade700]) : LinearGradient(colors: [Colors.blueGrey.shade800, Colors.blueGrey.shade700])),
-                ),
-              ),
-              SizedBox(
-                width: 100,
-                height: 100,
-                child: CircularProgressIndicator(
-                  value: completed ? 1.0 : progress,
-                  strokeWidth: 8,
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Icon(completed ? Icons.check : Icons.play_arrow, size: 32),
-              ),
-              if (locked) Positioned(
-                right: 6,
-                top: 6,
-                child: Icon(Icons.lock, size: 20, color: Colors.white70),
-              )
+      onTapDown: (_) => _handleDown(),
+      onTapUp: (_) => _handleUp(),
+      onTapCancel: () => _handleUp(),
+      child: AnimatedScale(
+        scale: _pressed ? 0.985 : 1.0,
+        duration: Duration(milliseconds: 120),
+        curve: Curves.easeOut,
+        child: AnimatedContainer(
+          duration: Duration(milliseconds: 160),
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(vertical: 18.0, horizontal: 20.0),
+          decoration: BoxDecoration(
+            gradient: backgroundGradient,
+            borderRadius: BorderRadius.circular(28),
+            border: Border.all(color: Colors.white.withOpacity(0.16), width: 1.0),
+            boxShadow: [
+              BoxShadow(color: Colors.black.withOpacity(_pressed ? 0.20 : 0.28), blurRadius: 20, offset: Offset(0, _pressed ? 8 : 12)),
             ],
           ),
-          SizedBox(height: 12),
-          Container(
-            width: 140,
-            child: Text(label, textAlign: TextAlign.center, maxLines: 2, overflow: TextOverflow.ellipsis),
-          )
-        ],
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      widget.label,
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Colors.white),
+                    ),
+                  ),
+                  if (widget.completed)
+                    Icon(Icons.check_circle, color: Colors.lightGreenAccent)
+                  else if (widget.locked)
+                    Icon(Icons.lock_outline, color: Colors.white70)
+                  else
+                    Icon(Icons.touch_app, color: Colors.white70),
+                ],
+              ),
+              SizedBox(height: 10),
+              Text(
+                widget.locked ? 'Hold after previous goal' : 'Hold to dismiss',
+                style: TextStyle(color: Colors.white70, fontSize: 14),
+              ),
+              SizedBox(height: 18),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(16),
+                child: TweenAnimationBuilder<double>(
+                  tween: Tween(begin: 0.0, end: widget.completed ? 1.0 : widget.progress),
+                  duration: Duration(milliseconds: 180),
+                  builder: (context, value, child) => LinearProgressIndicator(
+                    value: value,
+                    minHeight: 8,
+                    backgroundColor: Colors.white12,
+                    valueColor: AlwaysStoppedAnimation<Color>(widget.completed ? Colors.lightGreenAccent : Colors.cyanAccent),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
